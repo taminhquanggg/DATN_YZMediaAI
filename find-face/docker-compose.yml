@@ -1,0 +1,33 @@
+version: "3.8"
+   
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/app.Dockerfile
+    command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 80 --reload   # add --reload for development
+    # volumes:
+    #   - .:/src/   # for development purpose
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+    environment: 
+      - DATABASE_URL=postgres://postgres:password@db/face_db
+      - CREATE_ALL_EACH_RUN=True
+      - DROP_ALL_EACH_RUN=False   # set to True for development
+      - DEBUG=True
+      - CLOUD_ACCOUNT_ID=ebb60230b2dffcfca922a56003de2224
+      - CLOUD_TOKEN=S72zl_MJq4hap-5G58c1n3n9c7wIEgiszYWqsyZO
+    # env_file:
+    #   - .env
+  db:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/postgres.Dockerfile
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=face_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
